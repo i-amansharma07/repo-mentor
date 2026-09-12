@@ -1,0 +1,10 @@
+Phase 1 → Repository ingestion
+Phase 2 → Document/code chunking
+Phase 3 → Embeddings
+Phase 4 → Vector storage / similarity search Phase
+5 → Basic RAG manually Phase
+6 → Improve retrieval/code-aware retrieval Phase 
+7 → Conversational RAG Phase 
+8 → Evaluation/observability Phase
+9 → Introduce LangChain and compare its abstractions with our manual implementation 
+Phase 10 → Tools/agents later
