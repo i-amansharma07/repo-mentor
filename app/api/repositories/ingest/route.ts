@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-
-import { RepositoryIngestionService } from "@/services/repository-ingestion.service";
-
 import { createChunker } from "@/services/global-chunker.service";
 import { DocumentChunk } from "@/types/chunk";
 import fs from "fs";
+import { EmbeddedChunk } from "@/types/embedding";
+
+import {
+  RepositoryIngestionService,
+  EmbedChunksService,
+} from "@/app/container";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,14 +24,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const service = new RepositoryIngestionService();
-
     //we get all the allowed files from repo with {content, language, size, path}
-    const { repository, files } = await service.ingest(url);
+    const { repository, files } = await RepositoryIngestionService.ingest(url);
 
     // we pass the results.files into the chunk service sequentially and strore the
     //result in a file
 
+    //CHUNKING PROCESS
     if (!files || !Array.isArray(files))
       throw new Error("No items in files array");
 
@@ -55,11 +57,21 @@ export async function POST(request: NextRequest) {
     }
     fs.writeFileSync("chunks.json", JSON.stringify(allChunks, null, 2));
 
+    //EMBEDDING PROCESS
+    const flatChunks = allChunks.flat();
+
+    const embeddedChunks: EmbeddedChunk[] =
+      await EmbedChunksService.embedChunks(flatChunks);
+
+    fs.writeFileSync("embedding.json", JSON.stringify(embeddedChunks, null, 2));
+
     return NextResponse.json({
       repository: repository,
       totalFiles: files.length,
-      totalChunks: allChunks.length,
+      totalChunks: flatChunks.length,
       erronousChunk: erronousChunk.length,
+      totalEmbeddings: embeddedChunks.length,
+      embeddingDimensions: embeddedChunks[0]?.embedding?.length,
     });
   } catch (error) {
     console.error("Repository ingestion failed:", error);

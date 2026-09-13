@@ -10,7 +10,7 @@ import { detectLanguage } from "@/utils/language";
 
 import type { RepositoryFile, RepositryInfo } from "@/types/repository";
 
-export class RepositoryIngestionService {
+export class RepositoryIngestion {
   async ingest(repositoryUrl: string): Promise<{
     repository: RepositryInfo;
     files: RepositoryFile[];
@@ -47,7 +47,7 @@ export class RepositoryIngestionService {
     // console.log("3. files", files);
 
     //4. fetch file contents
-    const repositoryFiles: RepositryFile[] = [];
+    const repositoryFiles: RepositoryFile[] = [];
 
     for (const file of files) {
       if (!file.size) continue;
